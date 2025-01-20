@@ -6,6 +6,7 @@ class canvas {
 		this.staticRes = settings.resolution;
 		this.fps = settings.fps;
 		this.useCursor = settings.useCursor; // assume on
+		this.paused = false;
 		this.canvas = canvas;
 		this.canvas.width = canvas.offetWidth;
 		this.canvas.height = canvas.offsetHeight;
@@ -72,20 +73,22 @@ class canvas {
 				this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			}
 
-			func(
-				{
-					canvas: this.canvas,
-					ctx: this.ctx,
-					fps: {
-						current: fps,
-						target: this.fps,
-						delta: frameDelta,
-						animationMult: 1 / fps,
+			if (!this.paused) {
+				func(
+					{
+						canvas: this.canvas,
+						ctx: this.ctx,
+						fps: {
+							current: fps,
+							target: this.fps,
+							delta: frameDelta,
+							animationMult: 1 / fps,
+						},
+						cursor: this.cursor,
 					},
-					cursor: this.cursor,
-				},
-				customVar,
-			);
+					customVar,
+				);
+			}
 		}
 	}
 
@@ -109,8 +112,6 @@ class canvas {
 		return { top: Math.round(top), left: Math.round(left) };
 	}
 
-	//events
-
 	#setEvents() {
 		if (this.resize) {
 			this.resObserver = new ResizeObserver(() => {
@@ -124,7 +125,6 @@ class canvas {
 				this.#mouseMove.bind(this),
 				false,
 			);
-
 			this.canvas.addEventListener(
 				'mousedown',
 				this.#mouseDown.bind(this),
@@ -158,12 +158,15 @@ class canvas {
 	#mouseDown() {
 		this.cursor.events.pressed = true;
 	}
+
 	#mouseUp() {
 		this.cursor.events.pressed = false;
 	}
+
 	#mouseEnter() {
 		this.cursor.events.in = true;
 	}
+
 	#mouseLeave() {
 		this.cursor.events.in = false;
 	}
